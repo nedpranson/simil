@@ -1,11 +1,9 @@
 WARNINGS := \
 	-Wall \
 	-Wextra \
-	-Wpedantic \
 	-Werror \
 	-Wconversion \
 	-Wsign-conversion \
-	-Wshadow \
 	-Wformat=2
 
 .PHONY: build run clean

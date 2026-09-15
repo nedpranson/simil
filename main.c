@@ -1,10 +1,6 @@
 #include <stdio.h>
-#include <string.h>
 
-#define MIN(a, b) ((a) < (b) ? (a) : (b))
-#define MAX(a, b) ((a) > (b) ? (a) : (b))
-
-#define SUB_SAT(a, b) ((a) > (b) ? (a) - (b) : 0)
+#include "base.h"
 
 // [ ][L][a][b][a][s][,][ ][P][a][s][a][u][l][i][?]
 // [P] 0  0  0  0  0  0  0  1  0  0  0  0  0  0  0
@@ -67,20 +63,23 @@ int main() {
 
     size_t height = rows + cols - 1;
 
+    printf("sv: "SV_FMT"\n", SV_ARG(string_view(str1)));
+
     // O(n^2) time, O(1) space
     for (size_t h = 0; h < height; h++) {
         size_t j = SUB_SAT(cols - 1, h);
         size_t i = SUB_SAT(h, cols - 1);
 
         size_t w = MIN(rows, MIN(h + 1, height - h));
-        size_t c = 0;
+        size_t n = 0;
 
         // todo: skip diags with len smaller then current substr
         for (; w > 0; w--) {
-            c += (str2[j++] == str1[i++]);
+            if (str2[j++] == str1[i++])
+                substr = MAX(substr, ++n);
+            else
+                n = 0;
         }
-
-        substr = MAX(substr, c);
     }
 
     printf("%ld\n", substr);
