@@ -15,7 +15,10 @@ build:
 	$(CC) -std=c23 $(WARNINGS) main.c -o bin/out
 
 run: build
-	./bin/out
+	./bin/out $(filter-out $@,$(MAKECMDGOALS))
+
+%:
+	@:
 
 clean:
 	rm -rf bin
