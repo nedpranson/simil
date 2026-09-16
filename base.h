@@ -24,11 +24,23 @@
 typedef struct {
     const char*  ptr;
     size_t       len;
-} string_view_t;
+} string_view;
 
-static inline string_view_t string_view(const char* str) {
-    return (string_view_t){
+static inline string_view sv(const char* str) {
+    return (string_view){
         .ptr = str,
         .len = strlen(str),
     };
+}
+
+static inline string_view sv_substr(string_view sv, size_t start, size_t len) {
+    sv.ptr += start;
+    sv.len = len;
+    return sv;
+}
+
+static inline string_view sv_slice(string_view sv, size_t start, size_t end) {
+    sv.ptr += start;
+    sv.len = end - start;
+    return sv;
 }

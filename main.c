@@ -19,22 +19,15 @@
 // [s] 0  0  0  0  1  0  0  0  0  1  0  0  0  0  0
 // [?] 0  0  0  0  0  0  0  0  0  0  0  0  0  0  1
 
+// [5x3]
+//
+// 0 0 1
 // 1 1 1
 // 0 0 0
 // 0 1 0
 // 0 1 0
 
-// [3x4], len = 3+4-1=6
-
-//     1       0      1
-//   1 0       1      2
-// 1 0 0       2      3
-// 0 1 0       3      3
-// 0 1         4      2
-// 0           5      1
-//
-
-// [3x5], len = 3+5-1=7
+// h = 5+3-1=7
 
 //     1       0      1
 //   0 1       1      2 
@@ -52,36 +45,69 @@
 // [3,0] [4,1]
 // [4,0]
 
-int main() {
-    const char* str1 = "Labas, Pasauli?";
-    const char* str2 = "Pasauli, Labas?";
+// O(n^2) time, O(1) space
+// using binary search it should be possible to acheive O(nlogn)
+size_t lcsubstr(string_view a, string_view b, size_t* ai, size_t* bi) {
+    size_t count = 0;
 
-    size_t substr = 0;
+    *ai = 0;
+    *bi = 0;
 
-    size_t rows = strlen(str1);
-    size_t cols = strlen(str2);
+    if (a.len > 0 && b.len > 0) {
+        size_t rows = a.len;
+        size_t cols = b.len;
 
-    size_t height = rows + cols - 1;
+        size_t height = rows + cols - 1;
+        for (size_t h = 0; h < height; h++) {
+            size_t j = SUB_SAT(cols - 1, h);
+            size_t i = SUB_SAT(h, cols - 1);
 
-    printf("sv: "SV_FMT"\n", SV_ARG(string_view(str1)));
+            size_t w = MIN(rows, MIN(h + 1, height - h));
+            size_t n = 0;
 
-    // O(n^2) time, O(1) space
-    for (size_t h = 0; h < height; h++) {
-        size_t j = SUB_SAT(cols - 1, h);
-        size_t i = SUB_SAT(h, cols - 1);
+            if (count >= w) {
+                continue;
+            }
 
-        size_t w = MIN(rows, MIN(h + 1, height - h));
-        size_t n = 0;
-
-        // todo: skip diags with len smaller then current substr
-        for (; w > 0; w--) {
-            if (str2[j++] == str1[i++])
-                substr = MAX(substr, ++n);
-            else
-                n = 0;
+            for (; w > 0; w--) {
+                if (b.ptr[j++] != a.ptr[i++]) {
+                    n = 0;
+                    if (count >= w - 1)
+                        break;
+                } else if (++n > count ) {
+                    count = n;
+                    *ai = i - count;
+                    *bi = j - count;
+                }
+            }
         }
     }
 
-    printf("%ld\n", substr);
+    return count;
+}
+
+size_t gcsubstr(string_view a, string_view b) {
+    size_t ai;
+    size_t bi;
+
+    size_t n = lcsubstr(a, b, &ai, &bi);
+    if (n == 0) {
+        return 0;
+    }
+
+    n += gcsubstr(sv_slice(a, 0, ai), sv_slice(b, 0, bi));
+    n += gcsubstr(sv_slice(a, ai + n, a.len), sv_slice(b, bi + n, b.len));
+
+    return n;
+}
+
+int main() {
+    string_view str1 = sv("Labas, Pasauli?");
+    string_view str2 = sv("Pasauli, Labas?");
+
+    size_t n = gcsubstr(str1, str2);
+    float dice = (float)(2 * n) / (float)(str1.len + str2.len);
+
+    printf("%.2f\n", dice);
     return 0;
 }
