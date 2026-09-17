@@ -90,24 +90,26 @@ size_t gcsubstr(string_view a, string_view b) {
     size_t ai;
     size_t bi;
 
-    size_t n = lcsubstr(a, b, &ai, &bi);
-    if (n == 0) {
+    size_t len = lcsubstr(a, b, &ai, &bi);
+    if (len == 0) {
         return 0;
     }
 
+    size_t n = len;
+
     n += gcsubstr(sv_slice(a, 0, ai), sv_slice(b, 0, bi));
-    n += gcsubstr(sv_slice(a, ai + n, a.len), sv_slice(b, bi + n, b.len));
+    n += gcsubstr(sv_slice(a, ai + len, a.len), sv_slice(b, bi + len, b.len));
 
     return n;
 }
 
-int main() {
-    string_view str1 = sv("Labas, Pasauli?");
-    string_view str2 = sv("Pasauli, Labas?");
+int main(/** int argc, char** argv **/) {
+    string_view str1 = sv("GESTALT PATTERN MATCHING\n");
+    string_view str2 = sv("GESTALT PRACTICE\n");
 
     size_t n = gcsubstr(str1, str2);
     float dice = (float)(2 * n) / (float)(str1.len + str2.len);
 
-    printf("%.2f\n", dice);
+    printf("%.2f\n", dice * 100);
     return 0;
 }

@@ -1,3 +1,6 @@
+#ifndef BASE_H
+#define BASE_H
+
 #include <string.h>
 
 #define MIN(a, b) ({      \
@@ -44,3 +47,5 @@ static inline string_view sv_slice(string_view sv, size_t start, size_t end) {
     sv.len = end - start;
     return sv;
 }
+
+#endif
